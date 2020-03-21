@@ -23,7 +23,8 @@
     "conventional-changelog-cli": "^2.0.31",
     "conventional-commits-detector": "^1.0.2",
     "conventional-recommended-bump": "^6.0.5",
-    "jest": "^25.1.0"
+    "jest": "^25.1.0",
+    "supertest": "^4.0.2"
   },
   "engines": {
     "node": "^12.10.0"
