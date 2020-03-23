@@ -1,0 +1,105 @@
+version: 2
+image: ubuntu:16.04
+jobs:
+  install-dependencies:
+    docker:
+      - image: node:12
+    working_directory: ~/app
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - dependencies-{{ checksum "package-lock.json" }}
+          - dependencies-
+      - run:
+          name: Install Dependencies
+          command: npm install
+      - save_cache:
+          paths:
+            - node_modules
+          key: dependencies-{{ checksum "package-lock.json" }}
+  test:
+    docker:
+      - image: node:12
+    working_directory: ~/app
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - dependencies-{{ checksum "package-lock.json" }}
+          - dependencies-
+      - run:
+          name: Run tests
+          command: npm run test --coverage
+  build:
+    docker:
+      - image: circleci/python
+    working_directory: ~/app
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build docker tag
+          command: |
+            docker build -t $OWNER/$CONTAINER_NAME:latest .
+            docker tag $OWNER/$CONTAINER_NAME:latest $OWNER/$CONTAINER_NAME:${CIRCLE_TAG:-CIRCLE_BRANCH}
+            mkdir -p docker-images
+            docker save -o docker-images/app.tar $OWNER/$CONTAINER_NAME:latest
+      - persist_to_workspace:
+          root: docker-images
+          paths:
+            - app.tar
+  deploy:
+    docker:
+      - image: circleci/python
+    working_directory: ~/app
+    steps:
+      - attach_workspace:
+          at: ~/app/docker-images
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Docker tag
+          command: |
+            docker load -i ~/app/docker/cpcon-admin-db.tar
+            docker tag $OWNER/$CONTAINER_NAME:latest $OWNER/$CONTAINER_NAME:$CIRCLE_TAG
+      - run:
+          name: Docker push
+          command: |
+            docker push $OWNER/$CONTAINER_NAME:latest
+            docker push $OWNER/$CONTAINER_NAME:$CIRCLE_TAG
+
+workflows:
+  version: 2
+  lint-test-and-build:
+    jobs:
+    - install-dependencies:
+        filters:
+          tags:
+            only: /^([0-9]+).([0-9]+).([0-9]+)$/
+          branches:
+            only: /^(develop|master)$/
+    - test:
+        requires:
+          - install-dependencies
+        filters:
+          tags:
+            only: /^([0-9]+).([0-9]+).([0-9]+)$/
+          branches:
+            only: /^(develop|master)$/
+    - build:
+        requires:
+          - test
+        filters:
+          tags:
+            only: /^([0-9]+).([0-9]+).([0-9]+)$/
+          branches:
+            ignore: /.*/
+    - deploy:
+        requires:
+          - build
+        filters:
+          tags:
+            only: /^([0-9]+).([0-9]+).([0-9]+)$/
+          branches:
+            ignore: /.*/
