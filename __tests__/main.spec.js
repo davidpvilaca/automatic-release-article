@@ -16,8 +16,8 @@ describe('test root routes', () => {
       .send()
       .set('Accept', 'application/json')
     expect(headers['content-type']).toMatch('application/json')
-    expect(body).toBe('pong')
-    expect(statusCode).toBe(200)
+    expect(body).toHaveProperty('message')
+    expect(statusCode).toBe(404)
   })
   it('PUT /ping', async () => {
     const { headers, body, statusCode } = await request(app)
@@ -25,8 +25,8 @@ describe('test root routes', () => {
       .send()
       .set('Accept', 'application/json')
     expect(headers['content-type']).toMatch('application/json')
-    expect(body).toBe('pong')
-    expect(statusCode).toBe(200)
+    expect(body).toHaveProperty('message')
+    expect(statusCode).toBe(404)
   })
   it('DELETE /ping', async () => {
     const { headers, body, statusCode } = await request(app)
@@ -34,8 +34,8 @@ describe('test root routes', () => {
       .send()
       .set('Accept', 'application/json')
     expect(headers['content-type']).toMatch('application/json')
-    expect(body).toBe('pong')
-    expect(statusCode).toBe(200)
+    expect(body).toHaveProperty('message')
+    expect(statusCode).toBe(404)
   })
   it('GET /time', async () => {
     const { headers, body, statusCode } = await request(app)
