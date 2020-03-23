@@ -56,12 +56,15 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/app/docker-images
-      - checkout
       - setup_remote_docker
+      - run:
+          name: Docker login
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
       - run:
           name: Docker tag
           command: |
-            docker load -i ~/app/docker/cpcon-admin-db.tar
+            docker load -i ~/app/docker-images/app.tar
             docker tag $OWNER/$CONTAINER_NAME:latest $OWNER/$CONTAINER_NAME:$CIRCLE_TAG
       - run:
           name: Docker push
@@ -76,7 +79,7 @@ workflows:
     - install-dependencies:
         filters:
           tags:
-            only: /^([0-9]+).([0-9]+).([0-9]+)$/
+            only: /^v([0-9]+).([0-9]+).([0-9]+)$/
           branches:
             only: /^(develop|master)$/
     - test:
@@ -84,7 +87,7 @@ workflows:
           - install-dependencies
         filters:
           tags:
-            only: /^([0-9]+).([0-9]+).([0-9]+)$/
+            only: /^v([0-9]+).([0-9]+).([0-9]+)$/
           branches:
             only: /^(develop|master)$/
     - build:
@@ -92,7 +95,7 @@ workflows:
           - test
         filters:
           tags:
-            only: /^([0-9]+).([0-9]+).([0-9]+)$/
+            only: /^v([0-9]+).([0-9]+).([0-9]+)$/
           branches:
             ignore: /.*/
     - deploy:
@@ -100,6 +103,6 @@ workflows:
           - build
         filters:
           tags:
-            only: /^([0-9]+).([0-9]+).([0-9]+)$/
+            only: /^v([0-9]+).([0-9]+).([0-9]+)$/
           branches:
             ignore: /.*/
