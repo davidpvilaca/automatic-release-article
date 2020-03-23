@@ -8,7 +8,10 @@
     "test": "jest",
     "conventional-commits-detector": "conventional-commits-detector",
     "changelog": "conventional-changelog -i CHANGELOG.md -s -p $(conventional-commits-detector)",
-    "recommended-bump": "conventional-recommended-bump -p $(conventional-commits-detector)"
+    "recommended-bump": "conventional-recommended-bump -p $(conventional-commits-detector)",
+    "json": "json",
+    "rimraf": "rimraf",
+    "conventional-github-releaser": "conventional-github-releaser"
   },
   "keywords": [],
   "author": "",
@@ -22,8 +25,11 @@
     "conventional-changelog-angular": "^5.0.6",
     "conventional-changelog-cli": "^2.0.31",
     "conventional-commits-detector": "^1.0.2",
+    "conventional-github-releaser": "^3.1.3",
     "conventional-recommended-bump": "^6.0.5",
     "jest": "^25.1.0",
+    "json": "^9.0.6",
+    "rimraf": "^3.0.2",
     "supertest": "^4.0.2"
   },
   "engines": {
